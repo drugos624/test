@@ -1,0 +1,100 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calcolatore Dosaggio Cloro</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .container {
+            max-width: 800px;
+            padding: 20px;
+        }
+        .result-card {
+            display: none;
+            margin-top: 20px;
+        }
+        .form-card {
+            background-color: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="form-card">
+            <h1 class="text-center mb-4">Calcolatore Dosaggio Cloro</h1>
+            
+            <form id="calcForm" class="needs-validation" novalidate>
+                <div class="mb-3">
+                    <label class="form-label">Tipo di Cloro</label>
+                    <select class="form-select" name="tipo_cloro" required>
+                        <option value="">Seleziona tipo di cloro</option>
+                        <option value="granulare">Granulare (40%)</option>
+                        <option value="liquido">Liquido (14%)</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Volume Acqua (m³)</label>
+                    <input type="number" class="form-control" name="volume_acqua" step="0.1" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">PPM Desiderati</label>
+                    <input type="number" class="form-control" name="ppm_desiderati" step="0.1" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100">Calcola</button>
+            </form>
+
+            <div class="result-card card mt-4">
+                <div class="card-body">
+                    <h5 class="card-title">Risultato</h5>
+                    <div class="card-text">
+                        <p><strong>Tipo di cloro:</strong> <span id="risultatoTipoCloro"></span></p>
+                        <p><strong>Volume acqua:</strong> <span id="risultatoVolume"></span> m³</p>
+                        <p><strong>PPM desiderati:</strong> <span id="risultatoPPM"></span></p>
+                        <p><strong>Quantità di cloro necessaria:</strong> <span id="risultatoQuantita"></span> ml</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById('calcForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            
+            fetch('/calcola', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('risultatoTipoCloro').textContent = data.tipo_cloro;
+                    document.getElementById('risultatoVolume').textContent = data.volume_acqua;
+                    document.getElementById('risultatoPPM').textContent = data.ppm_desiderati;
+                    document.getElementById('risultatoQuantita').textContent = data.risultato;
+                    document.querySelector('.result-card').style.display = 'block';
+                } else {
+                    alert('Errore nel calcolo. Verifica i dati inseriti.');
+                }
+            })
+            .catch(error => {
+                alert('Errore nella comunicazione con il server.');
+            });
+        });
+    </script>
+</body>
+</html>
